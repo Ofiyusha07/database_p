@@ -24,3 +24,34 @@ CREATE TABLE Products (
     unit_price DECIMAL(10,2),
     roast_level VARCHAR(20)
 );
+
+CREATE TABLE Orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    total_amount DECIMAL(10,2),
+    order_status VARCHAR(20),
+    channel VARCHAR(20),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+CREATE TABLE OrderItems (
+    order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    unit_price DECIMAL(10,2),
+    discount_amount DECIMAL(10,2),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+CREATE TABLE Payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    method VARCHAR(20),
+    amount DECIMAL(10,2),
+    payment_date DATE,
+    status VARCHAR(20),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+);
