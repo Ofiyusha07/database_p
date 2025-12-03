@@ -8108,3 +8108,23 @@ CREATE INDEX idx_payments_date ON Payments(payment_date);
 CREATE INDEX idx_deliveries_order ON Deliveries(order_id);
 CREATE INDEX idx_reviews_product ON Reviews(product_id);
 CREATE INDEX idx_reviews_customer ON Reviews(customer_id);
+
+
+SELECT 
+    r.region_name,
+    p.product_name,
+    CASE
+        WHEN MONTH(o.order_date) IN (12,1,2) THEN 'Winter'
+        WHEN MONTH(o.order_date) IN (3,4,5) THEN 'Spring'
+        WHEN MONTH(o.order_date) IN (6,7,8) THEN 'Summer'
+        ELSE 'Autumn'
+    END AS season,
+    SUM(oi.quantity * oi.unit_price - oi.discount_amount) AS total_profit
+FROM OrderItems oi
+JOIN Orders o ON oi.order_id = o.order_id
+JOIN Customers c ON o.customer_id = c.customer_id
+JOIN Regions r ON c.region_id = r.region_id
+JOIN Products p ON oi.product_id = p.product_id
+GROUP BY r.region_name, season, p.product_name
+ORDER BY total_profit DESC
+LIMIT 20;
