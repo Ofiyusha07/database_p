@@ -8128,3 +8128,16 @@ JOIN Products p ON oi.product_id = p.product_id
 GROUP BY r.region_name, season, p.product_name
 ORDER BY total_profit DESC
 LIMIT 20;
+
+
+SELECT 
+    d.carrier,
+    AVG(DATEDIFF(d.delivered_date, d.shipped_date)) AS avg_delay,
+    AVG(rv.rating) AS avg_rating,
+    COUNT(rv.review_id) AS total_reviews
+FROM Deliveries d
+JOIN Orders o ON d.order_id = o.order_id
+LEFT JOIN Reviews rv ON o.order_id = rv.order_id
+WHERE d.delivered_date IS NOT NULL
+GROUP BY d.carrier
+ORDER BY avg_delay DESC;
