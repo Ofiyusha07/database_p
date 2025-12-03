@@ -8095,3 +8095,16 @@ INSERT INTO Reviews (review_id, order_id, product_id, customer_id, rating, revie
 (998, 440, 415, 866, 5, 'Not satisfied.', '2024-03-14'),
 (999, 836, 385, 168, 2, 'Would buy again.', '2023-04-10'),
 (1000, 719, 135, 190, 3, 'Product did not match description.', '2023-01-20');
+
+CREATE INDEX idx_customers_region ON Customers(region_id);
+CREATE INDEX idx_products_category ON Products(category_id);
+CREATE INDEX idx_orders_customer ON Orders(customer_id);
+CREATE INDEX idx_orders_date ON Orders(order_date);
+CREATE INDEX idx_orders_status ON Orders(order_status);
+CREATE INDEX idx_orderitems_order ON OrderItems(order_id);
+CREATE INDEX idx_orderitems_product ON OrderItems(product_id);
+CREATE INDEX idx_payments_order ON Payments(order_id);
+CREATE INDEX idx_payments_date ON Payments(payment_date);
+CREATE INDEX idx_deliveries_order ON Deliveries(order_id);
+CREATE INDEX idx_reviews_product ON Reviews(product_id);
+CREATE INDEX idx_reviews_customer ON Reviews(customer_id);
