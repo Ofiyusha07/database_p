@@ -8165,3 +8165,21 @@ SELECT
     END AS segment
 FROM customer_spending
 ORDER BY total_spent DESC;
+
+
+SELECT 
+    p.product_id,
+    p.product_name,
+    
+    SUM(CASE WHEN rv.rating <= 2 THEN 1 ELSE 0 END) AS negative_reviews,
+    
+    SUM(CASE WHEN o.order_status = 'Cancelled' THEN 1 ELSE 0 END) AS cancellations,
+
+    COUNT(oi.order_item_id) AS total_sales
+FROM Products p
+LEFT JOIN OrderItems oi ON p.product_id = oi.product_id
+LEFT JOIN Orders o ON oi.order_id = o.order_id
+LEFT JOIN Reviews rv ON rv.product_id = p.product_id
+GROUP BY p.product_id, p.product_name
+HAVING negative_reviews > 0 OR cancellations > 0
+ORDER BY negative_reviews DESC, cancellations DESC;
