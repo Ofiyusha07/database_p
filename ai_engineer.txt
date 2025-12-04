@@ -53,3 +53,142 @@ def test_connection():
 
 
 test_connection()
+
+
+
+# Cell 16: Simple AI Agent Demo
+print("\n" + "="*60)
+print("AI Agent Demo")
+print("="*60)
+
+import re
+import pandas as pd
+import mysql.connector
+
+# Connect to database
+conn = mysql.connector.connect(
+    host="127.0.0.1",
+    database="ecommerce_project",
+    user="root",
+    password="Ao869998",
+    port=3306
+)
+cursor = conn.cursor(dictionary=True)
+
+class SimpleAI:
+    def __init__(self, cursor):
+        self.cursor = cursor
+        self.rules = {
+            # Products
+            r'(most profitable|top selling)': 
+                "SELECT product_name, SUM(quantity * unit_price) as revenue FROM products JOIN orderitems USING(product_id) GROUP BY product_name ORDER BY revenue DESC LIMIT 5",
+            
+            r'(average order|avg order)': 
+                "SELECT AVG(total_amount) as avg_order FROM orders",
+            
+            r'(how many customers|total customers)': 
+                "SELECT COUNT(*) as total_customers FROM customers",
+            
+            r'(delivery delay|late delivery)': 
+                "SELECT order_id, DATEDIFF(delivered_date, shipped_date) as delay_days FROM deliveries WHERE delivered_date IS NOT NULL AND DATEDIFF(delivered_date, shipped_date) > 3 ORDER BY delay_days DESC LIMIT 10",
+            
+            r'(bad reviews|negative reviews)': 
+                "SELECT product_name, rating, review_text FROM reviews JOIN products USING(product_id) WHERE rating < 3 LIMIT 10",
+            
+            r'(sales channel|order channel)': 
+                "SELECT channel, COUNT(*) as orders FROM orders GROUP BY channel",
+            
+            r'(monthly revenue|monthly sales)': 
+                "SELECT DATE_FORMAT(order_date, '%Y-%m') as month, SUM(total_amount) as revenue FROM orders GROUP BY month ORDER BY month DESC LIMIT 6",
+        }
+    
+    def ask(self, question):
+        print(f"\nQ: {question}")
+        
+        # Find matching query
+        sql = None
+        for pattern, query in self.rules.items():
+            if re.search(pattern, question.lower()):
+                sql = query
+                break
+        
+        if not sql:
+            sql = "SELECT 'Ask about: products, customers, orders, deliveries, or reviews' as info"
+        
+        print(f"SQL: {sql}")
+        print("-" * 40)
+        
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            
+            if results:
+                df = pd.DataFrame(results)
+                print(f"Answer: Found {len(df)} records")
+                print(df.to_string(index=False))
+                return df
+            else:
+                print("No data found")
+                return None
+                
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
+
+# Create AI agent
+ai = SimpleAI(cursor)
+print("AI Agent ready!")
+
+# Cell 17: Test AI Agent
+print("\n" + "="*60)
+print("Testing AI Agent")
+print("="*60)
+
+test_questions = [
+    "What are the most profitable products?",
+    "How many customers?",
+    "Show delivery delays",
+    "Average order amount?",
+    "Bad reviews?",
+    "Sales channels?",
+    "Monthly revenue?"
+]
+
+for q in test_questions:
+    ai.ask(q)
+    print()
+
+# Cell 18: Interactive Demo
+print("\n" + "="*60)
+print("Interactive Demo")
+print("="*60)
+
+print("Type questions or 'exit'")
+print("Examples:")
+print("- most profitable products")
+print("- how many customers")
+print("- delivery delays")
+print("- bad reviews")
+print("- sales channels")
+print()
+
+while True:
+    try:
+        q = input("Your question: ").strip()
+        if q.lower() in ['exit', 'quit', 'q']:
+            print("Bye!")
+            break
+        if q:
+            ai.ask(q)
+    except:
+        break
+
+cursor.close()
+conn.close()
+
+print("\n" + "="*60)
+print("Done!")
+print("="*60)
+print("AI Agent can answer business questions.")
+print("Shows SQL query and results.")
+print("Ready for presentation.")
